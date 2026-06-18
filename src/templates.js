@@ -1,5 +1,7 @@
 export function formatTaskMessage(task) {
   return [
+    'please classify this task @PengawalBayanganBot',
+    '',
     '[PM] New Task',
     `Task ID: ${task.id}`,
     `Title: ${task.title}`,

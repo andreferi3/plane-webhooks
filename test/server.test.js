@@ -112,6 +112,7 @@ test('POST /webhooks/plane queues valid delivery and deduplicates retry', async 
     assert.equal((await first.json()).queued, true);
 
     await waitFor(() => messages.length === 1);
+    assert.match(messages[0], /^please classify this task @PengawalBayanganBot\n\n/);
     assert.match(messages[0], /\[PM\] New Task/);
     assert.match(messages[0], /Title: Build receiver/);
     assert.equal(store.tasks['ISS-1'].deliveryId, 'delivery-1');
