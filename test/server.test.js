@@ -115,6 +115,8 @@ test('POST /webhooks/plane queues valid delivery and deduplicates retry', async 
     assert.match(messages[0], /^please classify this task @PengawalBayanganBot\n\n/);
     assert.match(messages[0], /Reply with exactly one \[HERMES\] block/);
     assert.match(messages[0], /Final approver is only @callmeowl/);
+    assert.match(messages[0], /Never say "mulai kerja", "sedang kerja", "done", or imply progress unless you actually used tools/);
+    assert.match(messages[0], /Any work\/progress claim must include evidence/);
     assert.match(messages[0], /Known DKI project paths:/);
     assert.match(messages[0], /\[PM\] New Task/);
     assert.match(messages[0], /Title: Build receiver/);
