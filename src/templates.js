@@ -10,7 +10,7 @@ export function formatTaskMessage(task) {
     'Description:',
     task.description || '-',
     '',
-    '@PengawalBayanganBot please review this task and provide your approval or rejection.',
+    '@PengawalBayanganBot',
   ].join('\n');
 }
 
