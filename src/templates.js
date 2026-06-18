@@ -1,7 +1,5 @@
 export function formatTaskMessage(task) {
   return [
-    '@PengawalBayanganBot please classify this task',
-    '',
     '[PM] New Task',
     `Task ID: ${task.id}`,
     `Title: ${task.title}`,
@@ -11,6 +9,8 @@ export function formatTaskMessage(task) {
     `Plane URL: ${task.url || '-'}`,
     'Description:',
     task.description || '-',
+    '',
+    '@PengawalBayanganBot please review this task and provide your approval or rejection.',
   ].join('\n');
 }
 
