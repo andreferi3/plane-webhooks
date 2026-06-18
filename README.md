@@ -1,16 +1,15 @@
 # plane-webhooks
 
-Express webhook receiver for Plane.so -> Telegram + Hermes triage.
+Express webhook receiver for Plane.so -> Telegram.
 
 ## Flow
 
 - Plane sends `POST /webhooks/plane`.
 - Receiver verifies `X-Plane-Signature` with HMAC-SHA256 and `PLANE_WEBHOOK_SECRET`.
 - Receiver deduplicates retries with `X-Plane-Delivery`.
-- Receiver responds `HTTP 200` after validation, then processes Telegram/Hermes asynchronously.
+- Receiver responds `HTTP 200` after validation, then sends the task to Telegram asynchronously.
 - Task is stored in state.
 - Telegram receives the task card.
-- Hermes replies `READY`, `BLOCKED`, or `NEED APPROVAL`.
 - Owner can approve through `POST /owner/approve`.
 
 ## Env
@@ -22,6 +21,7 @@ Copy `.env.example` to `.env` for local runs. In Railway, set the same values in
 - `TELEGRAM_CHAT_ID` required for Telegram delivery.
 - `PLANE_USER_EMAIL` optional, filters issue notifications by assignee email/name.
 - `DELIVERY_CACHE_LIMIT` optional, default `1000` delivery IDs kept in memory.
+- `TASK_DEDUPE_WINDOW_MS` optional, default `60000`, suppresses duplicate task notifications within the window.
 - `STATE_FILE` optional, default `data/state.json`.
 - `PORT` optional, default `3000` locally. Railway provides this automatically.
 

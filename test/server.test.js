@@ -111,16 +111,16 @@ test('POST /webhooks/plane queues valid delivery and deduplicates retry', async 
     assert.equal(first.status, 200);
     assert.equal((await first.json()).queued, true);
 
-    await waitFor(() => messages.length === 2);
+    await waitFor(() => messages.length === 1);
     assert.match(messages[0], /\[PM\] New Task/);
     assert.match(messages[0], /Title: Build receiver/);
-    assert.match(messages[1], /\[HERMES\] READY/);
     assert.equal(store.tasks['ISS-1'].deliveryId, 'delivery-1');
+    assert.equal(store.tasks['ISS-1'].status, 'NOTIFIED');
 
     const second = await fetch(`${baseUrl}/webhooks/plane`, { method: 'POST', headers, body });
     assert.equal(second.status, 200);
     assert.equal((await second.json()).duplicate, true);
-    assert.equal(messages.length, 2);
+    assert.equal(messages.length, 1);
   });
 });
 
@@ -171,7 +171,7 @@ test('POST /webhooks/plane deduplicates same task across different Plane deliver
     assert.equal(first.status, 200);
     assert.equal((await first.json()).queued, true);
 
-    await waitFor(() => messages.length === 2);
+    await waitFor(() => messages.length === 1);
     assert.match(messages[0], /Need approval flow/);
     assert.match(messages[0], /Second line/);
     assert.doesNotMatch(messages[0], /\[object Object\]/);
@@ -188,7 +188,7 @@ test('POST /webhooks/plane deduplicates same task across different Plane deliver
       deliveryId: 'delivery-b',
       taskId: 'ISS-16',
     });
-    assert.equal(messages.length, 2);
+    assert.equal(messages.length, 1);
   });
 });
 

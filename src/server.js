@@ -2,8 +2,7 @@ import crypto from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import express from 'express';
 import { sendTelegram } from './bot.js';
-import { classifyTask } from './triage.js';
-import { formatTaskMessage, formatHermesReply, formatOwnerApproval } from './templates.js';
+import { formatTaskMessage, formatOwnerApproval } from './templates.js';
 import { getTask, upsertTask } from './store.js';
 
 const DEFAULT_DELIVERY_CACHE_LIMIT = 1000;
@@ -176,20 +175,11 @@ async function processPlaneWebhook(payload, context, deps) {
     event: context.event,
     notificationFingerprint,
     notifiedAt,
-    status: 'TRIAGED',
+    status: 'NOTIFIED',
   });
   await telegramSender(formatTaskMessage(task), env);
 
-  const decision = classifyTask(task);
-  await taskStore.upsertTask(task.id, { status: decision.state, decision });
-  await telegramSender(formatHermesReply({
-    state: decision.state,
-    task,
-    reason: decision.reason,
-    need: decision.need,
-  }), env);
-
-  return { taskId: task.id, state: decision.state };
+  return { taskId: task.id, state: 'NOTIFIED' };
 }
 
 const defaultTaskStore = { getTask, upsertTask };

@@ -12,13 +12,6 @@ export function formatTaskMessage(task) {
   ].join('\n');
 }
 
-export function formatHermesReply({ state, task, reason, need }) {
-  const lines = [`[HERMES] ${state}`, `Task ID: ${task.id}`, `Reason: ${reason}`];
-  if (need) lines.push(`Need: ${need}`);
-  lines.push('Next: waiting approval from @callmeowl');
-  return lines.join('\n');
-}
-
 export function formatOwnerApproval(taskId) {
   return `[OWNER] APPROVED ${taskId}`;
 }
