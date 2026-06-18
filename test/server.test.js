@@ -113,6 +113,9 @@ test('POST /webhooks/plane queues valid delivery and deduplicates retry', async 
 
     await waitFor(() => messages.length === 1);
     assert.match(messages[0], /^please classify this task @PengawalBayanganBot\n\n/);
+    assert.match(messages[0], /Reply with exactly one \[HERMES\] block/);
+    assert.match(messages[0], /Final approver is only @callmeowl/);
+    assert.match(messages[0], /Known DKI project paths:/);
     assert.match(messages[0], /\[PM\] New Task/);
     assert.match(messages[0], /Title: Build receiver/);
     assert.equal(store.tasks['ISS-1'].deliveryId, 'delivery-1');
