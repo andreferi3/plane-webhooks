@@ -124,6 +124,74 @@ test('POST /webhooks/plane queues valid delivery and deduplicates retry', async 
   });
 });
 
+test('POST /webhooks/plane deduplicates same task across different Plane deliveries', async () => {
+  const messages = [];
+  const store = createMemoryStore();
+  const app = createApp({
+    env: { PLANE_WEBHOOK_SECRET: SECRET, TASK_DEDUPE_WINDOW_MS: '60000' },
+    taskStore: store,
+    telegramSender: (text) => {
+      messages.push(text);
+      return Promise.resolve();
+    },
+    logger: { error() {} },
+  });
+
+  await withServer(app, async (baseUrl) => {
+    const body = JSON.stringify({
+      event: 'issue',
+      action: 'created',
+      data: {
+        id: 'ISS-16',
+        name: 'Frontend detail drawer and write actions',
+        priority: 'high',
+        assignees: [{ email: 'dodi.triwibowo@usenobi.com' }],
+        description: {
+          type: 'doc',
+          content: [
+            { type: 'paragraph', content: [{ type: 'text', text: 'Need approval flow' }] },
+            { type: 'paragraph', content: [{ type: 'text', text: 'Second line' }] },
+          ],
+        },
+      },
+    });
+
+    const makeHeaders = (deliveryId) => ({
+      'content-type': 'application/json',
+      'x-plane-signature': sign(body),
+      'x-plane-delivery': deliveryId,
+      'x-plane-event': 'issue',
+    });
+
+    const first = await fetch(`${baseUrl}/webhooks/plane`, {
+      method: 'POST',
+      headers: makeHeaders('delivery-a'),
+      body,
+    });
+    assert.equal(first.status, 200);
+    assert.equal((await first.json()).queued, true);
+
+    await waitFor(() => messages.length === 2);
+    assert.match(messages[0], /Need approval flow/);
+    assert.match(messages[0], /Second line/);
+    assert.doesNotMatch(messages[0], /\[object Object\]/);
+
+    const second = await fetch(`${baseUrl}/webhooks/plane`, {
+      method: 'POST',
+      headers: makeHeaders('delivery-b'),
+      body,
+    });
+    assert.equal(second.status, 200);
+    assert.deepEqual(await second.json(), {
+      ok: true,
+      duplicate: true,
+      deliveryId: 'delivery-b',
+      taskId: 'ISS-16',
+    });
+    assert.equal(messages.length, 2);
+  });
+});
+
 test('POST /webhooks/plane ignores deliveries for other assignees', async () => {
   const messages = [];
   const store = createMemoryStore();
