@@ -1,0 +1,28 @@
+export function formatTaskMessage(task) {
+  return [
+    '[PM] New Task',
+    `Task ID: ${task.id}`,
+    `Title: ${task.title}`,
+    `Priority: ${task.priority || 'Normal'}`,
+    `Due: ${task.due || '-'}`,
+    `Assignee: ${task.assignee || '-'}`,
+    `Plane URL: ${task.url || '-'}`,
+    'Description:',
+    task.description || '-',
+  ].join('\n');
+}
+
+export function formatHermesReply({ state, task, reason, need }) {
+  const lines = [`[HERMES] ${state}`, `Task ID: ${task.id}`, `Reason: ${reason}`];
+  if (need) lines.push(`Need: ${need}`);
+  lines.push('Next: waiting approval from @callmeowl');
+  return lines.join('\n');
+}
+
+export function formatOwnerApproval(taskId) {
+  return `[OWNER] APPROVED ${taskId}`;
+}
+
+export function formatOwnerRejection(taskId, reason) {
+  return [`[OWNER] REJECTED ${taskId}`, `Reason: ${reason}`].join('\n');
+}
